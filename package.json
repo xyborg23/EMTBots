@@ -1,0 +1,22 @@
+{
+  "name": "msftbots",
+  "version": "1.0.0",
+  "description": "EMT with Microsoft Bots",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "microsoft",
+    "bots",
+    "learning",
+    "autotutor"
+  ],
+  "author": "Jobin Sunny",
+  "license": "MIT",
+  "dependencies": {
+    "botbuilder": "^3.3.3",
+    "restify": "^4.1.1"
+  }
+}
