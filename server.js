@@ -1,6 +1,7 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 var http = require('http');
+var xml2js = require('xml2js');
 
 //=========================================================
 // Bot Setup
@@ -25,11 +26,11 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
-    var http = require('http');
     //The url we want is: 'www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new'
+    var pathstring = '/base?json={"ttop":50,"category":"news","include_etop":true,"SS":"fa","wc":0,"format":"xml","minWeight":0,"userGuid":"0ba98b2e-6da0-4096-b993-954a5790e726","type":"2","text":"happy","minStrength":0,"guid":"0ba98b2e-6da0-4096-b993-954a5790e726","include_ttop":true,"minRankby":0,"etop":10,"domain":"nodomain"}'
     var options = {
       host: 'dsspp.skoonline.org',
-      path: '/base?json={"ttop":50,"category":"news","include_etop":true,"SS":"fa","wc":0,"format":"xml","minWeight":0,"userGuid":"0ba98b2e-6da0-4096-b993-954a5790e726","type":"2","text":"happy","minStrength":0,"guid":"0ba98b2e-6da0-4096-b993-954a5790e726","include_ttop":true,"minRankby":0,"etop":10,"domain":"nodomain"}'
+      path: pathstring
     };
 
     callback = function(response) {
