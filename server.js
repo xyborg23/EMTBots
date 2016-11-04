@@ -20,13 +20,27 @@ var connector = new builder.ChatConnector({
 });
 var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
+
+var questions = ['What is force?', 'What is insulin?', 'What is the slope of a line?']
+var answers = ['Force is mass times acceleration. It is the strength of physical action.', 'Insulin is a hormone that is important to maintain glucose levels in blood.', 'It is the rate of change of a line.']
+var current_question = ""
+
+var botReplies = [
+    { field: 'RN', prompt: "Great! Can you elaborate?" },
+    { field: 'RO', prompt: "That is correct, but tell me something more." },
+    { field: 'IN', prompt: "That does not seem relevant here. Try again." },
+    { field: 'IO', prompt: "Try thinking of your answer in another way." }
+];
+
+
 var remoteSessionKey = "";
 var JSONObject = {};
 JSONObject.ttop = 50;
 JSONObject.category = "news";
 JSONObject.include_etop = true;
-JSONObject.target = "Force is mass times acceleration. It is the strength of physical action.";
-JSONObject.SS = "fa";
+var answerKey = "Force is mass times acceleration. It is the strength of physical action.";
+JSONObject.target = encodeURI(answerKey);
+JSONObject.SS = "tasalsa500";
 JSONObject.wc = 0;
 JSONObject.notes = "";
 JSONObject.sessionKey = "";
@@ -44,8 +58,6 @@ JSONObject.etop = 10;
 JSONObject.domain = "nodomain";
 var jsonString = JSON.stringify(JSONObject);
 var pathpath = '/lcc?json=' + jsonString;
-pathpath = encodeURI(pathpath);
-console.dir(jsonString);
 
 var cc = "";
 var ct = 0;
@@ -60,35 +72,61 @@ var irr_new =  "";
 
 bot.dialog('/', [
     function (session) {
-        session.send("Welcome! Let's start with some questions!")
-        session.beginDialog('/q1');
+        session.send("Hello, I am EMT Bot!");
+        session.beginDialog('/menu');
     },
     function (session, results) {
-        session.send("Thank you for trying this out!");
+        session.endConversation("Goodbye until next time...");
     }
 ]);
 
-bot.dialog('/q1', [
+bot.dialog('/menu', [
+    function (session) {
+        builder.Prompts.choice(session, "Choose a subject:", 'Physics|Biology|Math|Quit');
+    },
+    function (session, results) {
+        switch (results.response.index) {
+            case 0:
+            case 1:
+            case 2:
+                session.beginDialog('/askQuestions', results.response);
+                break;
+            default:
+                session.endDialog();
+                break;
+        }
+    },
+    function (session) {
+        // Reload menu
+        session.replaceDialog('/menu');
+    }
+]).reloadAction('showMenu', null, { matches: /^(menu|back)/i });
+
+bot.dialog('/askQuestions', [
     function (session, args) {
+        if(args.entity != null) {
+            current_question = questions[args.index];
+            answerKey = answers[args.index];
+        }
         // Save previous state (create on first call)
         session.dialogData.answer = args ? args.answer : "";
 
         // Prompt user for next field
-        builder.Prompts.text(session, "What is force?");
+        console.log(current_question);
+        builder.Prompts.text(session, current_question);
     },
     function (session, results) {
         // Save users reply
         session.dialogData.answer = results.response;
 
         // Check for end of form
-        if (session.dialogData.answer != "" && ct < 0.6) {
-            session.send("You said " + session.dialogData.answer);
+        if (ct < 0.6) {
+            // session.send("You said " + session.dialogData.answer);
             answerInput = encodeURI(session.dialogData.answer);
             JSONObject.current = answerInput;
+            JSONObject.target = encodeURI(answerKey);
             var jsonString = JSON.stringify(JSONObject);
             var pathpath = '/lcc?json=' + jsonString;
-            pathpath = encodeURI(pathpath);
-            console.log("THIS IS THE PATH ========== " + pathpath);
 
             var options = {
               host: 'dsspp.skoonline.org',
@@ -128,72 +166,19 @@ bot.dialog('/q1', [
             }
 
             http.request(options, callback).end();
+            console.log("CT===================================== " + ct);
+            if(ct > 0.6) {
+                session.endDialogWithResult({ response: session.dialogData.answer });
+            }
             // Next field
-            session.replaceDialog('/q1');
-            // session.replaceDialog('/q1', session.dialogData);
+            // session.replaceDialog('/q1');
+            session.replaceDialog('/askQuestions', session.dialogData);
         } else {
             // Return completed form
             console.log("CT: " + ct);
             console.log("END DIALOG");
+            session.send("Great! You got it! Want to try some other subject?")
             session.endDialogWithResult({ response: session.dialogData.answer });
         }
     }
 ]);
-
-var botReplies = [
-    { field: 'q1', prompt: "What is force?" },
-    { field: 'RN', prompt: "Great! Can you elaborate?" },
-    { field: 'RO', prompt: "That is correct, but tell me something more." },
-    { field: 'IN', prompt: "That does not seem relevant here. Try again." },
-    { field: 'IO', prompt: "Try thinking of your answer in another way." }
-];
-
-//
-// bot.dialog('/', function (session) {
-//     answerInput = "bad disease";
-//     answerInput = encodeURI(answerInput);
-//     console.log(answerInput);
-//     // var pathstring = '/lcc?json={"ttop":50,"category":"news","include_etop":true,"target":"","SS":"fa","wc":0,"notes":"","sessionKey":"ag9zfmRzc3BwMjAxMS1ocmRyFwsSCkxDQ1Nlc3Npb24YgICAoK2_mAoM","format":"xml","minWeight":0,"userGuid":"44064767-a6ef-4c70-9536-cf196ee6794a","type":"2","text":"","minStrength":0,"current":"' + answerInput + '","guid":"ea8308d1-f93c-457d-84c8-1fa4457c7148","include_ttop":true,"minRankby":0,"etop":10,"domain":"nodomain"}';
-//     // console.log(pathstring);
-//     // var pathstring = '/lcc?json={"ttop":50,"category":"news","include_etop":true,"target":"","SS":"fa","wc":0,"notes":"","sessionKey":"ag9zfmRzc3BwMjAxMS1ocmRyFwsSCkxDQ1Nlc3Npb24YgICAoK2_mAoM","format":"xml","minWeight":0,"userGuid":"44064767-a6ef-4c70-9536-cf196ee6794a","type":"2","text":"","minStrength":0,"current":"bad%20diesease","guid":"ea8308d1-f93c-457d-84c8-1fa4457c7148","include_ttop":true,"minRankby":0,"etop":10,"domain":"nodomain"}';
-//     // console.log(pathstring);
-//
-//     var options = {
-//       host: 'dsspp.skoonline.org',
-//       path: pathpath
-//     };
-//
-//     callback = function(response) {
-//       var str = '';
-//
-//       //another chunk of data has been recieved, so append it to `str`
-//       response.on('data', function (chunk) {
-//         str += chunk;
-//       });
-//
-//       //the whole response has been recieved, so we just print it out here
-//       response.on('end', function () {
-//           var parseString = xml2js.parseString;
-//           parseString(str, function(err, results) {
-//               cc = results['lcc']['CC'];
-//               ct = results['lcc']['CT'];
-//               r_old = results['lcc']['RO'];
-//               r_new = results['lcc']['RN'];
-//               irr_old = results['lcc']['IO'];
-//               irr_new = results['lcc']['IN'];
-//               console.dir(results);
-//               console.log("CC ============= " + cc);
-//               console.log("CT ============= " + ct);
-//               console.log("RO ============= " + r_old);
-//               console.log("RN ============= " + r_new);
-//               console.log("IO ============= " + irr_old);
-//               console.log("IN ============= " + irr_new);
-//           });
-//           console.log(str);
-//       });
-//     }
-//
-//     http.request(options, callback).end();
-//
-//     session.send("Hello World");
-// });
