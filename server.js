@@ -89,6 +89,7 @@ bot.dialog('/menu', [
             case 0:
             case 1:
             case 2:
+                ct = 0;
                 session.beginDialog('/askQuestions', results.response);
                 break;
             default:
@@ -162,22 +163,31 @@ bot.dialog('/askQuestions', [
                       console.log("IN ============= " + irr_new);
                   });
                   console.log(str);
+                  if(ct > 0.6) {
+                      session.send("Great! You got it! Want to try some other subject?")
+                      session.endDialogWithResult({ response: session.dialogData.answer });
+                  }
+                  else {
+                      session.replaceDialog('/askQuestions', session.dialogData);
+                  }
               });
             }
 
-            http.request(options, callback).end();
-            console.log("CT===================================== " + ct);
-            if(ct > 0.6) {
-                session.endDialogWithResult({ response: session.dialogData.answer });
+            val = http.request(options, callback).end();
+            if(val != "") {
+                console.log("VAL IS:" + val);
             }
-            // Next field
-            // session.replaceDialog('/q1');
-            session.replaceDialog('/askQuestions', session.dialogData);
+            // console.log("CT===================================== " + ct);
+            // if(ct > 0.6) {
+            //     session.endDialogWithResult({ response: session.dialogData.answer });
+            // }
+            // // Next field
+            // // session.replaceDialog('/q1');
+            // session.replaceDialog('/askQuestions', session.dialogData);
         } else {
             // Return completed form
             console.log("CT: " + ct);
             console.log("END DIALOG");
-            session.send("Great! You got it! Want to try some other subject?")
             session.endDialogWithResult({ response: session.dialogData.answer });
         }
     }
