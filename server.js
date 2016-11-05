@@ -168,6 +168,24 @@ bot.dialog('/askQuestions', [
                       session.endDialogWithResult({ response: session.dialogData.answer });
                   }
                   else {
+                      if(cc >= 0 && cc < 0.1) {
+                          session.send("I know you can do this. Try to recall what we learned.");
+                      }
+                      else if(cc >= 0.1 && cc < 0.2) {
+                           session.send("Maybe. Try expanding on your answer.");
+                      }
+                      else if(cc >= 0.2 && cc < 0.3) {
+                           session.send("You're on the right track! Please try to elaborate.");
+                      }
+                      else if(cc >= 0.3 && cc < 0.5) {
+                           session.send("Great! Can you try to expand on your answer a little bit more?");
+                      }
+                      else if(cc >= 0.5 && cc < 0.6) {
+                           session.send("You're on the right track. Be sure to answer both parts of the question.");
+                      }
+                      else {
+                           session.send("Perfect, please click on the next button to see what your doctor has to say about your glucose levels in the past few years.");
+                      }
                       session.replaceDialog('/askQuestions', session.dialogData);
                   }
               });
