@@ -1,5 +1,5 @@
 {
-  "name": "msftbots",
+  "name": "EMTBots",
   "version": "1.0.0",
   "description": "EMT with Microsoft Bots",
   "main": "server.js",
