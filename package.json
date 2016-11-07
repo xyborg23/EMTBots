@@ -1,10 +1,10 @@
 {
-  "name": "msftbots",
+  "name": "EMTBots",
   "version": "1.0.0",
   "description": "EMT with Microsoft Bots",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": ""
   },
   "repository": {
     "type": "git",
